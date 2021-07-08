@@ -1,0 +1,10 @@
+
+<h1>Draw Shapes</h1>
+<p>draw a square with a side length of 250</p>
+<input type="text" size="50" id="command" [(ngModel)]="command"/><button (click)="draw()">Draw</button><br>
+
+<canvas id="shapeCanvas" #shapeCanvas [width]="[canvasWidth]" [height]="[canvasHeight]" style="border:1px solid black"></canvas>
+
+
+
+<router-outlet></router-outlet>
