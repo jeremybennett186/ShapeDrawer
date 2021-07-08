@@ -121,7 +121,7 @@ export class AppComponent implements OnInit {
     this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
     this.context.fillStyle = '#0000ff';
     this.context.beginPath()
-    this.context.ellipse(oval.width, oval.height, oval.width, oval.height, 0, 0, 2 * Math.PI);
+    this.context.ellipse(oval.width/2, oval.height/2, oval.width/2, oval.height/2, 0, 0, 2 * Math.PI);
     this.context.fill()
   }
 }

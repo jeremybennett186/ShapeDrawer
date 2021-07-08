@@ -15,6 +15,18 @@ namespace ShapeDrawer.Controllers
     [ApiController]
     public class CommandParserController : ControllerBase
     {
+        static Dictionary<string, int> RegularPolygons = new Dictionary<string, int>() {
+            { "equilateral triangle", 3 },
+            { "pentagon", 5 },
+            { "hexagon", 6 },
+            { "heptagon", 7 },
+            { "octagon", 8 },
+            { "nonagon", 9 },
+            { "decagon", 10 },
+            { "hendecagon", 11 },
+            { "dodecagon", 12 }
+        };
+
         [HttpGet("{command}")]
         public Shape Get(string command)
         {
@@ -38,7 +50,7 @@ namespace ShapeDrawer.Controllers
             switch (shapeType) {
                 case "circle":
                     return DrawCircle(commandMeasurements);
-                case "isocelese triangle":
+                case "isosceles triangle":
                     return DrawIsoceleseTriangle(commandMeasurements);
                 case "square":
                     return DrawSquare(commandMeasurements);
@@ -47,17 +59,17 @@ namespace ShapeDrawer.Controllers
                 case "parallelogram":
                     return DrawParallelogram(commandMeasurements);
                 case "equilateral triangle":
-                    return DrawEquilateralTriangle(commandMeasurements);
+                    return DrawRegularPolygon(commandMeasurements, 3);
                 case "pentagon":
-                    return DrawPentagon(commandMeasurements);
+                    return DrawRegularPolygon(commandMeasurements, 5);
                 case "rectangle":
                     return DrawRectangle(commandMeasurements);
                 case "hexagon":
-                    return DrawHexagon(commandMeasurements);
+                    return DrawRegularPolygon(commandMeasurements, 6);
                 case "heptagon":
-                    return DrawHeptagon(commandMeasurements);
-                case "optagon":
-                    return DrawOptagon(commandMeasurements);
+                    return DrawRegularPolygon(commandMeasurements, 7);
+                case "octagon":
+                    return DrawRegularPolygon(commandMeasurements, 8);
                 case "oval":
                     return DrawOval(commandMeasurements);
                 case "cube":
@@ -69,96 +81,138 @@ namespace ShapeDrawer.Controllers
         // use polymorphism for shapes
         private Shape DrawCircle(string commandMeasurements)
         {
-            throw new NotImplementedException();
+            var circle = new Oval();
+
+            var radiusPortion = Regex.Matches(commandMeasurements, "radius of [0-9]*");
+            circle.Width = circle.Height = Int32.Parse(Regex.Matches(radiusPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value) * 2;
+
+            return circle;
         }
 
         private Shape DrawIsoceleseTriangle(string commandMeasurements)
         {
-            throw new NotImplementedException();
+            var heightPortion = Regex.Matches(commandMeasurements, "height of [0-9]*");
+            var height = Int32.Parse(Regex.Matches(heightPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            var widthPortion = Regex.Matches(commandMeasurements, "width of [0-9]*");
+            var width = Int32.Parse(Regex.Matches(widthPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            return new Polygon()
+            {
+                Coordinates = new List<Coordinate>()
+                {
+                    new Coordinate(width / 2, 0),
+                    new Coordinate(0, height),
+                    new Coordinate(width, height),
+                    new Coordinate(width / 2, 0)
+                }
+            };
         }
 
+        // Don't use regular polygon function because it rotates the square (which is still correct but looks weird)
         private Shape DrawSquare(string commandMeasurements)
         {
-            var square = new Polygon();
-            int sideLength = 0;
-            if (commandMeasurements.Contains("side length of "))
-            {
-                string sideLengthString = Regex.Replace(commandMeasurements, @"[^\d]", "");
-                sideLength = Int32.Parse(sideLengthString);
-            }
+            var sideLengthPortion = Regex.Matches(commandMeasurements, "side length of [0-9]*");
+            int sideLength = Int32.Parse(Regex.Matches(sideLengthPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
 
-            square.Coordinates = new List<Coordinate>()
+            return new Polygon()
             {
+                Coordinates = new List<Coordinate>()
+                {
                 new Coordinate(0, 0),
                 new Coordinate(0, sideLength),
                 new Coordinate(sideLength, sideLength),
                 new Coordinate(sideLength, 0),
                 new Coordinate(0, 0)
+                }
             };
-
-            return square;
         }
 
         private Shape DrawScaleneTriangle(string commandMeasurements)
         {
+            // base, height, small angle
             throw new NotImplementedException();
         }
 
         private Shape DrawParallelogram(string commandMeasurements)
         {
-            throw new NotImplementedException();
-        }
-
-        private Shape DrawEquilateralTriangle(string commandMeasurements)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Shape DrawPentagon(string commandMeasurements)
-        {
+            // base, height, small angle
             throw new NotImplementedException();
         }
 
         private Shape DrawRectangle(string commandMeasurements)
         {
             var rectangle = new Polygon();
-            int sideLength = 0;
-            if (commandMeasurements.Contains("length of "))
-            {
-                string sideLengthString = Regex.Replace(commandMeasurements, @"[^\d]", "");
-                sideLength = Int32.Parse(sideLengthString);
-            }
 
+            var heightPortion = Regex.Matches(commandMeasurements, "height of [0-9]*");
+            var height = Int32.Parse(Regex.Matches(heightPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            var widthPortion = Regex.Matches(commandMeasurements, "width of [0-9]*");
+            var width = Int32.Parse(Regex.Matches(widthPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            
             rectangle.Coordinates = new List<Coordinate>()
             {
                 new Coordinate(0, 0),
-                new Coordinate(0, sideLength),
-                new Coordinate(sideLength, sideLength),
-                new Coordinate(sideLength, 0),
+                new Coordinate(0, height),
+                new Coordinate(width, height),
+                new Coordinate(width, 0),
                 new Coordinate(0, 0)
             };
 
             return rectangle;
         }
 
-        private Shape DrawHexagon(string commandMeasurements)
+        private Polygon DrawRegularPolygon(string commandMeasurements, int numSides)
         {
-            throw new NotImplementedException();
+            var sideLengthPortion = Regex.Matches(commandMeasurements, "side length of [0-9]*");
+            int sideLength = Int32.Parse(Regex.Matches(sideLengthPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            var shape = new Polygon()
+            {
+                Coordinates = GetEquilateralPolygonCoordinates(numSides, sideLength)
+            };
+
+            return shape;
         }
 
-        private Shape DrawHeptagon(string commandMeasurements)
+        private List<Coordinate> GetEquilateralPolygonCoordinates(int numSides, int sidelength)
         {
-            throw new NotImplementedException();
-        }
+            var coordinates = new List<Coordinate>();
 
-        private Shape DrawOptagon(string commandMeasurements)
-        {
-            throw new NotImplementedException();
+            // get radius of the circle that encompasses the polygon
+            var radius = sidelength / (2 * Math.Sin(Math.PI / numSides));
+
+            // get shape coordinates
+            for (int i = 0; i < numSides; i++)
+            {
+                coordinates.Add(new Coordinate(
+                    Convert.ToInt32(radius + radius * Math.Cos(2 * Math.PI * i / numSides)),
+                    Convert.ToInt32(radius + radius * Math.Sin(2 * Math.PI * i / numSides))));
+            }
+
+            // ensure shape is flush with canvas
+            var minX = coordinates.Min(c => c.X);
+            var minY = coordinates.Min(c => c.Y);
+            if (minX > 0)
+                coordinates = coordinates.Select(c => { c.X = c.X - minX; return c; }).ToList();
+            if (minY > 0)
+                coordinates = coordinates.Select(c => { c.Y = c.Y - minY; return c; }).ToList();
+
+            return coordinates;
         }
 
         private Shape DrawOval(string commandMeasurements)
         {
-            throw new NotImplementedException();
+            var oval = new Oval();
+
+            var heightPortion = Regex.Matches(commandMeasurements, "height of [0-9]*");
+            oval.Height = Int32.Parse(Regex.Matches(heightPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            var widthPortion = Regex.Matches(commandMeasurements, "width of [0-9]*");
+            oval.Width = Int32.Parse(Regex.Matches(widthPortion.FirstOrDefault().Value, "[0-9]+").FirstOrDefault().Value);
+
+            return oval;
         }
 
         private Shape DrawCube(string sideLength)
@@ -207,4 +261,16 @@ else
         }
     };
 }
+
+
+
+
+
+            /*var square = new Polygon();
+            int sideLength = 0;
+            if (commandMeasurements.Contains("side length of "))
+            {
+                string sideLengthString = Regex.Replace(commandMeasurements, @"[^\d]", "");
+                sideLength = Int32.Parse(sideLengthString);
+            }
 */
