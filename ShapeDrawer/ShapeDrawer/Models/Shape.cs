@@ -8,10 +8,5 @@ namespace ShapeDrawer.Models
     public abstract class Shape
     {
         public string Type { get { return this.GetType().Name; } }
-
-        public bool Validate()
-        {
-            return true;
-        }
     }
 }

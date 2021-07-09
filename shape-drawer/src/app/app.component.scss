@@ -1,0 +1,24 @@
+.container {
+    padding: 1em;
+}
+
+.inputs {
+    display: flex;
+    flex-direction: row;
+}
+
+#command {
+    width: 100%;
+}
+
+#draw-button {
+    width: 100px;
+}
+
+#shapeCanvas {
+    padding-top: 1em;
+}
+
+#error-message {
+    color: red;
+}

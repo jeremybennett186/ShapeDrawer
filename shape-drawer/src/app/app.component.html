@@ -1,11 +1,13 @@
 
-<h1>Draw Shapes</h1>
-<p>draw a square with a side length of 250</p>
-<p>Draw a rectangle with a width of 250 and a height of 400</p>
-<input type="text" size="50" style="width:80%" id="command" [(ngModel)]="command"/><button (click)="draw()">Draw</button><br>
+<div class="container">
+    <div class="inputs">
+        <input autocomplete="on" placeholder="Enter draw command" type="text" id="command" [(ngModel)]="command"/>
+        <button [disabled]="command === ''" id="draw-button" (click)="drawShape()">Draw</button><br>
+    </div>
+    
+    <p id="error-message" *ngIf="errorMessage">Error occurred parsing shape: {{ errorMessage }}</p>
 
-<canvas id="shapeCanvas" #shapeCanvas [width]="[canvasWidth]" [height]="[canvasHeight]" style="border:1px solid black"></canvas>
-
-
+    <canvas id="shapeCanvas" #shapeCanvas width="0" height="0"></canvas>
+</div>
 
 <router-outlet></router-outlet>

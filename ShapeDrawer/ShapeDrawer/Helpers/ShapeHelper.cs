@@ -1,18 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ShapeDrawer.Models;
+﻿using ShapeDrawer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace ShapeDrawer.Controllers
+namespace ShapeDrawer.Helpers
 {
-
-    [Route("[controller]")]
-    [ApiController]
-    public class CommandParserController : ControllerBase
+    public static class ShapeHelper
     {
-        static Dictionary<string, int> RegularPolygons = new Dictionary<string, int>() {
+        public static Dictionary<string, int> RegularPolygons = new Dictionary<string, int>() {
             { "equilateral triangle", 3 },
             { "pentagon", 5 },
             { "hexagon", 6 },
@@ -24,52 +21,7 @@ namespace ShapeDrawer.Controllers
             { "dodecagon", 12 }
         };
 
-        [HttpGet("{command}")]
-        public Shape Get(string command)
-        {
-            command = command.ToLower();
-
-            if (command.StartsWith("draw an "))
-                command = command.Substring(8, command.Length - 8);
-            else if (command.StartsWith("draw a "))
-                command = command.Substring(7, command.Length - 7);
-
-            string shapeType = command.Substring(0, command.IndexOf("with") - 1);
-
-            string commandMeasurements = command.TrimStart(shapeType.ToCharArray());
-
-            if (commandMeasurements.StartsWith(" with an "))
-                commandMeasurements = commandMeasurements.Substring(9, commandMeasurements.Length - 9);
-            else if (commandMeasurements.StartsWith(" with a "))
-                commandMeasurements = commandMeasurements.Substring(8, commandMeasurements.Length - 8);
-
-
-            switch (shapeType) {
-                case "circle":
-                    return DrawCircle(commandMeasurements);
-                case "isosceles triangle":
-                    return DrawIsoceleseTriangle(commandMeasurements);
-                case "square":
-                    return DrawSquare(commandMeasurements);
-                case "scalene triangle":
-                    return DrawScaleneTriangle(commandMeasurements);
-                case "parallelogram":
-                    return DrawParallelogram(commandMeasurements);
-                case "rectangle":
-                    return DrawRectangle(commandMeasurements);
-                case "oval":
-                    return DrawOval(commandMeasurements);
-                case "cube":
-                    return DrawCube(commandMeasurements);
-                default:
-                    if (RegularPolygons.ContainsKey(shapeType))
-                        return DrawRegularPolygon(commandMeasurements, RegularPolygons[shapeType]);
-                    break;
-            }
-            throw new Exception ("Unsupported shape type");
-        }
-
-        private Shape DrawCircle(string commandMeasurements)
+        public static Shape DrawCircle(string commandMeasurements)
         {
             var circle = new Oval();
 
@@ -79,7 +31,7 @@ namespace ShapeDrawer.Controllers
             return circle;
         }
 
-        private Shape DrawIsoceleseTriangle(string commandMeasurements)
+        public static Shape DrawIsoceleseTriangle(string commandMeasurements)
         {
             var heightPortion = Regex.Match(commandMeasurements, "height of [0-9]*");
             var height = Int32.Parse(Regex.Match(heightPortion.Value, "[0-9]+").Value);
@@ -100,7 +52,7 @@ namespace ShapeDrawer.Controllers
         }
 
         // Don't use regular polygon function because it rotates the square (which is still correct but looks weird)
-        private Shape DrawSquare(string commandMeasurements)
+        public static Shape DrawSquare(string commandMeasurements)
         {
             var sideLengthPortion = Regex.Match(commandMeasurements, "side length of [0-9]*");
             int sideLength = Int32.Parse(Regex.Match(sideLengthPortion.Value, "[0-9]+").Value);
@@ -118,7 +70,7 @@ namespace ShapeDrawer.Controllers
             };
         }
 
-        private Shape DrawScaleneTriangle(string commandMeasurements)
+        public static Shape DrawScaleneTriangle(string commandMeasurements)
         {
             var firstSidePortion = Regex.Match(commandMeasurements, "side length of [0-9]*");
             var firstSideLength = Int32.Parse(Regex.Match(firstSidePortion.Value, "[0-9]+").Value);
@@ -141,7 +93,7 @@ namespace ShapeDrawer.Controllers
             double leftAngle;
             double rightAngle;
             double topAngle;
-            double  topVertexXCoordinate;
+            double topVertexXCoordinate;
             double height;
 
             if (firstSideLength > secondSideLength && firstSideLength > thirdSideLength)
@@ -189,7 +141,7 @@ namespace ShapeDrawer.Controllers
             };
         }
 
-        private Shape DrawParallelogram(string commandMeasurements)
+        public static Shape DrawParallelogram(string commandMeasurements)
         {
             var topPortion = Regex.Match(commandMeasurements, "top side length of [0-9]*");
             var topSideLength = Int32.Parse(Regex.Match(topPortion.Value, "[0-9]+").Value);
@@ -232,7 +184,7 @@ namespace ShapeDrawer.Controllers
             };
         }
 
-        private Shape DrawRectangle(string commandMeasurements)
+        public static Shape DrawRectangle(string commandMeasurements)
         {
             var rectangle = new Polygon();
 
@@ -242,7 +194,7 @@ namespace ShapeDrawer.Controllers
             var widthPortion = Regex.Match(commandMeasurements, "width of [0-9]*");
             var width = Int32.Parse(Regex.Match(widthPortion.Value, "[0-9]+").Value);
 
-            
+
             rectangle.Coordinates = new List<Coordinate>()
             {
                 new Coordinate(0, 0),
@@ -255,7 +207,7 @@ namespace ShapeDrawer.Controllers
             return rectangle;
         }
 
-        private Polygon DrawRegularPolygon(string commandMeasurements, int numSides)
+        public static Polygon DrawRegularPolygon(string commandMeasurements, int numSides)
         {
             var sideLengthPortion = Regex.Match(commandMeasurements, "side length of [0-9]*");
             int sideLength = Int32.Parse(Regex.Match(sideLengthPortion.Value, "[0-9]+").Value);
@@ -268,7 +220,7 @@ namespace ShapeDrawer.Controllers
             return shape;
         }
 
-        private List<Coordinate> GetEquilateralPolygonCoordinates(int numSides, int sidelength)
+        public static List<Coordinate> GetEquilateralPolygonCoordinates(int numSides, int sidelength)
         {
             var coordinates = new List<Coordinate>();
 
@@ -289,7 +241,7 @@ namespace ShapeDrawer.Controllers
         }
 
         // ensure shape is flush with canvas
-        private static List<Coordinate> AlignCoordinatesWithCanvas(List<Coordinate> coordinates)
+        public static List<Coordinate> AlignCoordinatesWithCanvas(List<Coordinate> coordinates)
         {
             var minX = coordinates.Min(c => c.X);
             var minY = coordinates.Min(c => c.Y);
@@ -300,7 +252,7 @@ namespace ShapeDrawer.Controllers
             return coordinates;
         }
 
-        private Shape DrawOval(string commandMeasurements)
+        public static Shape DrawOval(string commandMeasurements)
         {
             var oval = new Oval();
 
@@ -313,7 +265,7 @@ namespace ShapeDrawer.Controllers
             return oval;
         }
 
-        private Shape DrawCube(string sideLength)
+        public static Shape DrawCube(string sideLength)
         {
             throw new NotImplementedException();
         }

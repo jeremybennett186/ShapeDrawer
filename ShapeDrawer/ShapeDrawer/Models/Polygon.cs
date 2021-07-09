@@ -8,10 +8,5 @@ namespace ShapeDrawer.Models
     public class Polygon : Shape
     {
         public List<Coordinate> Coordinates { get; set; }
-
-        public List<Coordinate> GetCoordinates()
-        {
-            return new List<Coordinate>();
-        }
     }
 }
