@@ -129,25 +129,62 @@ namespace ShapeDrawer.Controllers
             var firstSecondSideAnglePortion = Regex.Match(commandMeasurements, "angle between them of [0-9]*");
             var firstSecondSideAngle = Int32.Parse(Regex.Match(firstSecondSideAnglePortion.Value, "[0-9]+").Value);
 
-            var thirdSideLength = Math.Sqrt(
+            var thirdSideLength = Convert.ToInt32(Math.Sqrt(
                 Math.Pow(secondSideLength, 2) + Math.Pow(firstSideLength, 2) - (2 * secondSideLength * firstSideLength * Math.Cos(Math.PI * firstSecondSideAngle / 180))
-                );
+                ));
 
-            /*
-            var bottomLeftAngle = Math.Acos((Math.Pow(firstSideLength, 2) + Math.Pow(thirdSideLength, 2) - Math.Pow(secondSideLength, 2)) / 2 * thirdSideLength);
+            // reorganise triangle so longest side is on the bottom
+            double baseSide;
+            double leftSide;
+            double rightSide;
 
-            var startXPosition = thirdSideLength * Math.Sin(Math.PI / 4 - bottomLeftAngle);
+            double leftAngle;
+            double rightAngle;
+            double topAngle;
+            double  topVertexXCoordinate;
+            double height;
 
-            var height = Convert.ToInt32(Math.Sqrt(Math.Pow(thirdSideLength, 2) - Math.Pow(startXPosition, 2)));*/
+            if (firstSideLength > secondSideLength && firstSideLength > thirdSideLength)
+            {
+                baseSide = firstSideLength;
+                rightSide = secondSideLength;
+                rightAngle = firstSecondSideAngle;
+
+                height = rightSide * Math.Sin(Math.PI * rightAngle / 180);
+
+                topVertexXCoordinate = baseSide - (rightSide * Math.Sin(Math.PI * (90 - rightAngle) / 180));
+            }
+            else if (secondSideLength > firstSideLength && secondSideLength > thirdSideLength)
+            {
+                baseSide = secondSideLength;
+                leftSide = firstSideLength;
+                leftAngle = firstSecondSideAngle;
+
+                height = leftSide * Math.Sin(Math.PI * leftAngle / 180);
+
+                topVertexXCoordinate = leftSide * Math.Sin(Math.PI * (90 - leftAngle) / 180);
+            }
+            else
+            {
+                baseSide = thirdSideLength;
+                rightSide = firstSideLength;
+                leftSide = secondSideLength;
+                topAngle = firstSecondSideAngle;
+
+                leftAngle = Math.Asin(rightSide * Math.Sin(Math.PI * topAngle / 180) / baseSide);
+                height = leftSide * Math.Sin(leftAngle);
+
+                topVertexXCoordinate = leftSide * Math.Sin((Math.PI / 2) - leftAngle);
+            }
 
             return new Polygon()
             {
                 Coordinates = new List<Coordinate>()
                 {
-                    new Coordinate(Convert.ToInt32(startXPosition), 0),
-                    new Coordinate(secondSideLength, height),
-                    new Coordinate(0, height),
-                    new Coordinate(Convert.ToInt32(startXPosition), 0)
+                    new Coordinate(Convert.ToInt32(topVertexXCoordinate), 0),
+                    new Coordinate(Convert.ToInt32(baseSide), Convert.ToInt32(height)),
+                    new Coordinate(0, Convert.ToInt32(height)),
+                    new Coordinate(Convert.ToInt32(topVertexXCoordinate), 0)
                 }
             };
         }
