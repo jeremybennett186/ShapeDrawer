@@ -13,10 +13,20 @@ export class AppComponent implements OnInit {
   @ViewChild('shapeCanvas', {static: false}) canvas: ElementRef<HTMLCanvasElement>;
   context: CanvasRenderingContext2D;
   title = 'shape-drawer';
-  command: string = ""
-  errorMessage: string = ""
+  command: string = "";
+  errorMessage: string = "";
 
   drawShape() {
+    /*this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    this.commandToShapeParserService.getShape(this.command)
+    const prism: Prism = {
+      width: 300,
+      height: 100,
+      length: 400,
+      type: "prism"
+    };
+    this.drawPrism(prism)
+    return*/
     this.errorMessage = "";
     this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     this.commandToShapeParserService.getShape(this.command)
@@ -26,9 +36,9 @@ export class AppComponent implements OnInit {
           this.drawPolygon(response);
         } else if (response.type === "Oval") {
           this.drawOval(response);
-        }// else if (response.type === "Prism") {
-         // this.drawPrism(response);
-        //}
+        } else if (response.type === "Prism") {
+          this.drawPrism(response);
+        }
       },
       e => {
         this.errorMessage = e.error.message;
@@ -86,44 +96,55 @@ export class AppComponent implements OnInit {
     this.context.fill();
   }
 
-  /*
   drawPrism(prism: Prism) {
-    // left face
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - wx, y - wx * 0.5);
-    ctx.lineTo(x - wx, y - h - wx * 0.5);
-    ctx.lineTo(x, y - h * 1);
-    ctx.closePath();
-    ctx.fillStyle = "#838357"
-    ctx.strokeStyle = "#7a7a51";
-    ctx.stroke();
-    ctx.fill();
+    var x = prism.width;
+    var y = prism.height + (prism.width + prism.length) / 2;
+    this.context.canvas.height = y;
+    this.context.canvas.width = prism.width + prism.length;
+    var colour = this.getRandomColour()
+    this.context.beginPath();
+    this.context.moveTo(x, y);
+    this.context.lineTo(x - prism.width, y - prism.width * 0.5);
+    this.context.lineTo(x - prism.width, y - prism.height - prism.width * 0.5);
+    this.context.lineTo(x, y - prism.height * 1);
+    this.context.closePath();
+    this.context.fillStyle = this.shadeColour(colour, -10);
+    this.context.strokeStyle = colour;
+    this.context.stroke();
+    this.context.fill();
+  
+    this.context.beginPath();
+    this.context.moveTo(x, y);
+    this.context.lineTo(x + prism.length, y - prism.length * 0.5);
+    this.context.lineTo(x + prism.length, y - prism.height - prism.length * 0.5);
+    this.context.lineTo(x, y - prism.height * 1);
+    this.context.closePath();
+    this.context.fillStyle = this.shadeColour(colour, 10);
+    this.context.strokeStyle = this.shadeColour(colour, 50);
+    this.context.stroke();
+    this.context.fill();
+  
+    this.context.beginPath();
+    this.context.moveTo(x, y - prism.height);
+    this.context.lineTo(x - prism.width, y - prism.height - prism.width * 0.5);
+    this.context.lineTo(x - prism.width + prism.length, y - prism.height - (prism.width * 0.5 + prism.length * 0.5));
+    this.context.lineTo(x + prism.length, y - prism.height - prism.length * 0.5);
+    this.context.closePath();
+    this.context.fillStyle = this.shadeColour(colour, 20);
+    this.context.strokeStyle = this.shadeColour(colour, 60);
+    this.context.stroke();
+    this.context.fill();
+  }
 
-    // right face
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + wy, y - wy * 0.5);
-    ctx.lineTo(x + wy, y - h - wy * 0.5);
-    ctx.lineTo(x, y - h * 1);
-    ctx.closePath();
-    ctx.fillStyle = "#6f6f49";
-    ctx.strokeStyle = "#676744";
-    ctx.stroke();
-    ctx.fill();
-
-    // center face
-    ctx.beginPath();
-    ctx.moveTo(x, y - h);
-    ctx.lineTo(x - wx, y - h - wx * 0.5);
-    ctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5));
-    ctx.lineTo(x + wy, y - h - wy * 0.5);
-    ctx.closePath();
-    ctx.fillStyle = "#989865";
-    ctx.strokeStyle = "#8e8e5e";
-    ctx.stroke();
-    ctx.fill();
-}*/
+  shadeColour(colour: string, percent: number) {
+    colour = colour.substr(1);
+    var num = parseInt(colour, 16),
+      amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt,
+      G = (num >> 8 & 0x00FF) + amt,
+      B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+  }
 
   getRandomColour() {
     var letters = '0123456789ABCDEF';

@@ -44,20 +44,21 @@ namespace ShapeDrawer.Controllers
                             return new Rectangle(shapeMeasurements);
                         case "oval":
                             return new Oval(shapeMeasurements);
-                        //case "cube":
-                       //     return new Cube(shapeMeasurements);
+                        case "prism":
+                            return new Prism(shapeMeasurements);
+                        case "cube":
+                            return new Cube(shapeMeasurements);
                         default:
-                            if (RegularPolygon.SupportedRegularPolygons.ContainsKey(shapeType))
-                                return new RegularPolygon(RegularPolygon.SupportedRegularPolygons[shapeType], shapeMeasurements);
-                            break;
+                            if (RegularPolygon.RegularPolygons.ContainsKey(shapeType))
+                                return new RegularPolygon(RegularPolygon.RegularPolygons[shapeType], shapeMeasurements);
+                            else
+                                throw new NotSupportedException("Unsupported shape type.");
                     }
                 }
                 catch (Exception ex)
                 {
                     throw new ArgumentException(String.Format("Unable to get shape given the shape measurements. Error: {0}", ex.Message));
                 }
-
-                throw new NotSupportedException("Unsupported shape type.");
             }
             catch (Exception ex)
             {

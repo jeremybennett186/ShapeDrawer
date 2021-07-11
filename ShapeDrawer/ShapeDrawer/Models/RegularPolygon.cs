@@ -7,7 +7,7 @@ namespace ShapeDrawer.Models
 {
     public class RegularPolygon : Polygon
     {
-        public static Dictionary<string, int> SupportedRegularPolygons = new Dictionary<string, int>() {
+        public static Dictionary<string, int> RegularPolygons = new Dictionary<string, int>() {
             { "equilateral triangle", 3 },
             { "pentagon", 5 },
             { "hexagon", 6 },
