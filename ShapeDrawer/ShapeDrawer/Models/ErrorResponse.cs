@@ -6,6 +6,7 @@
 
         public ErrorResponse(string message)
         {
-            this.Message = message;        }
+            this.Message = message;        
+        }
     }
 }

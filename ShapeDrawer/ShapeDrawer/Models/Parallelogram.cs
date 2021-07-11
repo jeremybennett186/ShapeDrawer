@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ShapeDrawer.Helpers;
+using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Models
 {
@@ -8,17 +8,14 @@ namespace ShapeDrawer.Models
     {
         public Parallelogram(string measurements)
         {
-            var topPortion = Regex.Match(measurements, "top side length of [0-9]*");
-            var topSideLength = Int32.Parse(Regex.Match(topPortion.Value, "[0-9]+").Value);
+            var topSideLength = ShapeHelper.ParseMeasurementParameter(measurements, "top side length");
 
-            var diagonalPortion = Regex.Match(measurements, "diagonal side length of [0-9]*");
-            var diagonalSideLength = Int32.Parse(Regex.Match(diagonalPortion.Value, "[0-9]+").Value);
+            var diagonalSideLength = ShapeHelper.ParseMeasurementParameter(measurements, "diagonal side length");
 
-            var topLeftAnglePortion = Regex.Match(measurements, "top left corner angle of [0-9]* degrees");
-            var topLeftAngle = Int32.Parse(Regex.Match(topLeftAnglePortion.Value, "[0-9]+").Value);
+            var topLeftAngle = ShapeHelper.ParseMeasurementParameter(measurements, "top left corner angle", " degrees");
 
             if (topLeftAngle >= 180)
-                throw new ArgumentException("Angle cannot be greater than 180 degrees.");
+                throw new ArgumentException("Top left angle cannot be greater than 180 degrees.");
 
             var height = Convert.ToInt32(diagonalSideLength * Math.Sin(Math.PI * topLeftAngle / 180));
             var extraLength = Convert.ToInt32(Math.Sqrt(Math.Pow(diagonalSideLength, 2) - Math.Pow(height, 2)));

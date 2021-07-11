@@ -1,15 +1,14 @@
-﻿using System;
+﻿using ShapeDrawer.Helpers;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Models
 {
     public class Square : Polygon
     {
+        // regular polygon function is not used for squares because it draws the square rotated by 45 degrees, which is correct but looks weird
         public Square(string measurements)
         {
-            var sideLengthPortion = Regex.Match(measurements, "side length of [0-9]*");
-            int sideLength = Int32.Parse(Regex.Match(sideLengthPortion.Value, "[0-9]+").Value);
+            int sideLength = ShapeHelper.ParseMeasurementParameter(measurements, "side length");
 
             this.Coordinates = new List<Coordinate>()
             {

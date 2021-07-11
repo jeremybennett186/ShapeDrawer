@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using ShapeDrawer.Helpers;
 
 namespace ShapeDrawer.Models
 {
@@ -7,8 +6,7 @@ namespace ShapeDrawer.Models
     {
         public Cube(string measurements)
         {
-            var sideLengthPortion = Regex.Match(measurements, "side length of [0-9]*");
-            this.Width = this.Height = this.Length = Int32.Parse(Regex.Match(sideLengthPortion.Value, "[0-9]+").Value);
+            this.Width = this.Height = this.Length = ShapeHelper.ParseMeasurementParameter(measurements, "side length");
         }
     }
 }

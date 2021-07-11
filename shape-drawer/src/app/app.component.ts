@@ -1,8 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { CommandToShapeParserService } from './services/command-to-shape-parser.service';
 import { Polygon } from './models/polygon';
 import { Oval } from './models/oval';
 import { Prism } from './models/prism';
-import { CommandToShapeParserService } from './services/command-to-shape-parser.service';
+import { Coordinate } from './models/coordinate';
 
 @Component({
   selector: 'app-root',
@@ -10,25 +11,16 @@ import { CommandToShapeParserService } from './services/command-to-shape-parser.
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  @ViewChild('shapeCanvas', {static: false}) canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('shapeCanvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
   context: CanvasRenderingContext2D;
   title = 'shape-drawer';
   command: string = "";
   errorMessage: string = "";
 
   drawShape() {
-    /*this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-    this.commandToShapeParserService.getShape(this.command)
-    const prism: Prism = {
-      width: 300,
-      height: 100,
-      length: 400,
-      type: "prism"
-    };
-    this.drawPrism(prism)
-    return*/
     this.errorMessage = "";
     this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+
     this.commandToShapeParserService.getShape(this.command)
       .subscribe(resp => {
         var response = { ...resp! };
@@ -41,23 +33,30 @@ export class AppComponent implements OnInit {
         }
       },
       e => {
-        this.errorMessage = e.error.message;
+        if (!e.error.message) {
+          this.errorMessage = "Unable to call shape parser service";
+        } else {
+          this.errorMessage = e.error.message;
+        }
       })
   }
 
-  constructor (private commandToShapeParserService: CommandToShapeParserService) {  }
+  constructor (private commandToShapeParserService: CommandToShapeParserService) {
+  }
 
   ngOnInit() {  }
 
   ngAfterViewInit() {
-    const res = this.canvas.nativeElement.getContext('2d');
-    if (!res || !(res instanceof CanvasRenderingContext2D)) {
+    // intialize context
+    const context = this.canvas.nativeElement.getContext('2d');
+    if (!context || !(context instanceof CanvasRenderingContext2D)) {
         throw new Error('Failed to get 2D context');
     }
-    this.context = res;
+    this.context = context;
   }
 
   drawPolygon(polygon: Polygon) {
+    // resize canvas
     var maxX = Math.max.apply(null, polygon.coordinates.map(function(coordinate) {
       return coordinate.x;
     }))
@@ -73,6 +72,7 @@ export class AppComponent implements OnInit {
     this.context.fillStyle = this.getRandomColour();
     this.context.beginPath();
 
+    // draw shape
     polygon.coordinates.forEach((coordinate, index) => {
       if (index === 0) {
         this.context.moveTo(coordinate.x, coordinate.y);
@@ -86,10 +86,11 @@ export class AppComponent implements OnInit {
   }
 
   drawOval(oval: Oval) {
+    // resize canvas
     this.context.canvas.height = oval.height;
     this.context.canvas.width = oval.width;
 
-    this.context.clearRect(0, 0, oval.width, oval.height);
+    // draw shape
     this.context.fillStyle = this.getRandomColour();
     this.context.beginPath();
     this.context.ellipse(oval.width/2, oval.height/2, oval.width/2, oval.height/2, 0, 0, 2 * Math.PI);
@@ -97,38 +98,48 @@ export class AppComponent implements OnInit {
   }
 
   drawPrism(prism: Prism) {
-    var x = prism.width;
-    var y = prism.height + (prism.width + prism.length) / 2;
-    this.context.canvas.height = y;
+    // get centre position
+    const centre: Coordinate = ({
+      x: prism.width,
+      y: (prism.height + (prism.width + prism.length) / 2)
+    });
+
+    // resize canvas
+    this.context.canvas.height = centre.y;
     this.context.canvas.width = prism.width + prism.length;
+
     var colour = this.getRandomColour()
+
+    // draw left face
     this.context.beginPath();
-    this.context.moveTo(x, y);
-    this.context.lineTo(x - prism.width, y - prism.width * 0.5);
-    this.context.lineTo(x - prism.width, y - prism.height - prism.width * 0.5);
-    this.context.lineTo(x, y - prism.height * 1);
+    this.context.moveTo(centre.x, centre.y);
+    this.context.lineTo(centre.x - prism.width, centre.y - prism.width * 0.5);
+    this.context.lineTo(centre.x - prism.width, centre.y - prism.height - prism.width * 0.5);
+    this.context.lineTo(centre.x, centre.y - prism.height * 1);
     this.context.closePath();
     this.context.fillStyle = this.shadeColour(colour, -10);
     this.context.strokeStyle = colour;
     this.context.stroke();
     this.context.fill();
   
+    // draw right face
     this.context.beginPath();
-    this.context.moveTo(x, y);
-    this.context.lineTo(x + prism.length, y - prism.length * 0.5);
-    this.context.lineTo(x + prism.length, y - prism.height - prism.length * 0.5);
-    this.context.lineTo(x, y - prism.height * 1);
+    this.context.moveTo(centre.x, centre.y);
+    this.context.lineTo(centre.x + prism.length, centre.y - prism.length * 0.5);
+    this.context.lineTo(centre.x + prism.length, centre.y - prism.height - prism.length * 0.5);
+    this.context.lineTo(centre.x, centre.y - prism.height * 1);
     this.context.closePath();
     this.context.fillStyle = this.shadeColour(colour, 10);
     this.context.strokeStyle = this.shadeColour(colour, 50);
     this.context.stroke();
     this.context.fill();
   
+    // draw top face
     this.context.beginPath();
-    this.context.moveTo(x, y - prism.height);
-    this.context.lineTo(x - prism.width, y - prism.height - prism.width * 0.5);
-    this.context.lineTo(x - prism.width + prism.length, y - prism.height - (prism.width * 0.5 + prism.length * 0.5));
-    this.context.lineTo(x + prism.length, y - prism.height - prism.length * 0.5);
+    this.context.moveTo(centre.x, centre.y - prism.height);
+    this.context.lineTo(centre.x - prism.width, centre.y - prism.height - prism.width * 0.5);
+    this.context.lineTo(centre.x - prism.width + prism.length, centre.y - prism.height - (prism.width * 0.5 + prism.length * 0.5));
+    this.context.lineTo(centre.x + prism.length, centre.y - prism.height - prism.length * 0.5);
     this.context.closePath();
     this.context.fillStyle = this.shadeColour(colour, 20);
     this.context.strokeStyle = this.shadeColour(colour, 60);
@@ -136,20 +147,22 @@ export class AppComponent implements OnInit {
     this.context.fill();
   }
 
+  // darken or lighten a colour by a percentage
   shadeColour(colour: string, percent: number) {
     colour = colour.substr(1);
-    var num = parseInt(colour, 16),
+    const number = parseInt(colour, 16),
       amt = Math.round(2.55 * percent),
-      R = (num >> 16) + amt,
-      G = (num >> 8 & 0x00FF) + amt,
-      B = (num & 0x0000FF) + amt;
+      R = (number >> 16) + amt,
+      G = (number >> 8 & 0x00FF) + amt,
+      B = (number & 0x0000FF) + amt;
     return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
   }
 
+  // generate a random colour
   getRandomColour() {
-    var letters = '0123456789ABCDEF';
+    const letters = '0123456789ABCDEF';
     var colour = '#';
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
       colour += letters[Math.floor(Math.random() * 16)];
     }
     return colour;

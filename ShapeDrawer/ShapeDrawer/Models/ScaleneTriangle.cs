@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ShapeDrawer.Helpers;
+using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Models
 {
@@ -8,14 +8,11 @@ namespace ShapeDrawer.Models
     {
         public ScaleneTriangle(string measurements)
         {
-            var firstSidePortion = Regex.Match(measurements, "side length of [0-9]*");
-            var firstSideLength = Int32.Parse(Regex.Match(firstSidePortion.Value, "[0-9]+").Value);
+            var firstSideLength = ShapeHelper.ParseMeasurementParameter(measurements, "side length");
 
-            var secondSidePortion = Regex.Match(measurements, "another side length of [0-9]*");
-            var secondSideLength = Int32.Parse(Regex.Match(secondSidePortion.Value, "[0-9]+").Value);
+            var secondSideLength = ShapeHelper.ParseMeasurementParameter(measurements, "another side length");
 
-            var firstSecondSideAnglePortion = Regex.Match(measurements, "angle between them of [0-9]* degrees");
-            var firstSecondSideAngle = Int32.Parse(Regex.Match(firstSecondSideAnglePortion.Value, "[0-9]+").Value);
+            var firstSecondSideAngle = ShapeHelper.ParseMeasurementParameter(measurements, "angle between them", " degrees");
 
             if (firstSecondSideAngle >= 180)
                 throw new ArgumentException("Angle cannot be greater than 180 degrees.");

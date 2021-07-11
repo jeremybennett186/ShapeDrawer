@@ -15,6 +15,7 @@ namespace ShapeDrawer.Controllers
         {
             try
             {
+                // parse command
                 command = command.ToLower();
 
                 command = Regex.Replace(command, "^(draw a|draw an)\\s+", "");
@@ -26,6 +27,7 @@ namespace ShapeDrawer.Controllers
                 if (String.IsNullOrWhiteSpace(command) || String.IsNullOrWhiteSpace(shapeType) || String.IsNullOrWhiteSpace(shapeMeasurements))
                     throw new ArgumentException("Unable to parse input string.");
 
+                // get shape
                 try
                 {
                     switch (shapeType)
@@ -51,18 +53,19 @@ namespace ShapeDrawer.Controllers
                         default:
                             if (RegularPolygon.RegularPolygons.ContainsKey(shapeType))
                                 return new RegularPolygon(RegularPolygon.RegularPolygons[shapeType], shapeMeasurements);
-                            else
-                                throw new NotSupportedException("Unsupported shape type.");
+                            break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new ArgumentException(String.Format("Unable to get shape given the shape measurements. Error: {0}", ex.Message));
+                    throw new ArgumentException(String.Format("Unable to generate shape given the measurements. Error: {0}", ex.Message));
                 }
+
+                throw new NotSupportedException("Unsupported shape type.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse(String.Format("Invalid input string. Error: {0}", ex.Message)));
+                return StatusCode(500, new ErrorResponse(ex.Message));
             }
         }
     }

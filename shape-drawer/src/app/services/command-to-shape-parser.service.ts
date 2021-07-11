@@ -13,11 +13,9 @@ export class CommandToShapeParserService {
   commandToShapeParserUrl: string = "/commandtoshapeparser/"
 
   getShape(command: string) {
-    console.log(environment.apiUrl)
     return this.http.get<any>(environment.apiUrl + this.commandToShapeParserUrl + command)
       .pipe(
-        retry(3), // retry a failed request up to 3 times
-        catchError(this.handleError) // then handle the error
+        catchError(this.handleError)
       );
   }
   

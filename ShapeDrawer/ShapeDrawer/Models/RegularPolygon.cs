@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ShapeDrawer.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Models
 {
@@ -19,10 +19,10 @@ namespace ShapeDrawer.Models
             { "dodecagon", 12 }
         };
 
+        // generate coordinates for any regular polygon in RegularPolygons list
         public RegularPolygon (int numSides, string measurements)
         {
-            var sideLengthPortion = Regex.Match(measurements, "side length of [0-9]*");
-            int sideLength = Int32.Parse(Regex.Match(sideLengthPortion.Value, "[0-9]+").Value);
+            int sideLength = ShapeHelper.ParseMeasurementParameter(measurements, "side length");
 
             this.Coordinates = GetRegularPolygonCoordinates(numSides, sideLength);
         }

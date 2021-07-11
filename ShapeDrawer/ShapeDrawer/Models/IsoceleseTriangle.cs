@@ -1,6 +1,5 @@
-﻿using System;
+﻿using ShapeDrawer.Helpers;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Models
 {
@@ -8,11 +7,10 @@ namespace ShapeDrawer.Models
     {
         public IsoceleseTriangle(string measurements)
         {
-            var heightPortion = Regex.Match(measurements, "height of [0-9]*");
-            var height = Int32.Parse(Regex.Match(heightPortion.Value, "[0-9]+").Value);
 
-            var widthPortion = Regex.Match(measurements, "width of [0-9]*");
-            var width = Int32.Parse(Regex.Match(widthPortion.Value, "[0-9]+").Value);
+            var height = ShapeHelper.ParseMeasurementParameter(measurements, "height");
+
+            var width = ShapeHelper.ParseMeasurementParameter(measurements, "width");
 
             this.Coordinates = new List<Coordinate>()
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using ShapeDrawer.Helpers;
 
 namespace ShapeDrawer.Models
 {
@@ -11,14 +10,11 @@ namespace ShapeDrawer.Models
 
         public Prism(string measurements)
         {
-            var heightPortion = Regex.Match(measurements, "height of [0-9]*");
-            this.Height = Int32.Parse(Regex.Match(heightPortion.Value, "[0-9]+").Value);
+            this.Height = ShapeHelper.ParseMeasurementParameter(measurements, "height");
 
-            var widthPortion = Regex.Match(measurements, "width of [0-9]*");
-            this.Width = Int32.Parse(Regex.Match(widthPortion.Value, "[0-9]+").Value);
+            this.Width = ShapeHelper.ParseMeasurementParameter(measurements, "width");
 
-            var lengthPortion = Regex.Match(measurements, "length of [0-9]*");
-            this.Length = Int32.Parse(Regex.Match(lengthPortion.Value, "[0-9]+").Value);
+            this.Length = ShapeHelper.ParseMeasurementParameter(measurements, "length");
         }
 
         public Prism() { }

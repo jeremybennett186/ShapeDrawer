@@ -1,3 +1,3 @@
 export abstract class Shape {
-    type: string
+    type: string;
 }
