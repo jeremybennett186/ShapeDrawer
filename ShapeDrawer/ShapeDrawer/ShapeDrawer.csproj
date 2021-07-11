@@ -4,5 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Models\Parallelogram.cs~RFcf10d6b.TMP" />
+  </ItemGroup>
+
 
 </Project>

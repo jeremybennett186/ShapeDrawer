@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShapeDrawer.Helpers;
 using ShapeDrawer.Models;
 using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
+using System.Text.RegularExpressions;
 
 namespace ShapeDrawer.Controllers
 {
@@ -13,56 +11,57 @@ namespace ShapeDrawer.Controllers
     public class CommandToShapeParserController : ControllerBase
     {
         [HttpGet("{command}")]
-        public ActionResult<Shape> Get(string command)
+        public ActionResult<IShape> Get(string command)
         {
             try
             {
                 command = command.ToLower();
 
-                if (command.StartsWith("draw an "))
-                    command = command.Substring(8, command.Length - 8);
-                else if (command.StartsWith("draw a "))
-                    command = command.Substring(7, command.Length - 7);
+                command = Regex.Replace(command, "^(draw a|draw an)\\s+", "");
 
-                string shapeType = command.Substring(0, command.IndexOf("with") - 1);
+                string shapeType = Regex.Match(command, "^.*(?=(\\ with))").Value;
 
-                string commandMeasurements = command.TrimStart(shapeType.ToCharArray());
+                string shapeMeasurements = Regex.Replace(command, string.Format("^({0} with a|with an)\\s+", shapeType), "");
 
-                if (commandMeasurements.StartsWith(" with an "))
-                    commandMeasurements = commandMeasurements.Substring(9, commandMeasurements.Length - 9);
-                else if (commandMeasurements.StartsWith(" with a "))
-                    commandMeasurements = commandMeasurements.Substring(8, commandMeasurements.Length - 8);
+                if (String.IsNullOrWhiteSpace(command) || String.IsNullOrWhiteSpace(shapeType) || String.IsNullOrWhiteSpace(shapeMeasurements))
+                    throw new ArgumentException("Unable to parse input string.");
 
-
-                switch (shapeType)
+                try
                 {
-                    case "circle":
-                        return ShapeHelper.DrawCircle(commandMeasurements);
-                    case "isosceles triangle":
-                        return ShapeHelper.DrawIsoceleseTriangle(commandMeasurements);
-                    case "square":
-                        return ShapeHelper.DrawSquare(commandMeasurements);
-                    case "scalene triangle":
-                        return ShapeHelper.DrawScaleneTriangle(commandMeasurements);
-                    case "parallelogram":
-                        return ShapeHelper.DrawParallelogram(commandMeasurements);
-                    case "rectangle":
-                        return ShapeHelper.DrawRectangle(commandMeasurements);
-                    case "oval":
-                        return ShapeHelper.DrawOval(commandMeasurements);
-                    case "cube":
-                        return ShapeHelper.DrawCube(commandMeasurements);
-                    default:
-                        if (ShapeHelper.RegularPolygons.ContainsKey(shapeType))
-                            return ShapeHelper.DrawRegularPolygon(commandMeasurements, ShapeHelper.RegularPolygons[shapeType]);
-                        break;
+                    switch (shapeType)
+                    {
+                        case "circle":
+                            return new Circle(shapeMeasurements);
+                        case "isosceles triangle":
+                            return new IsoceleseTriangle(shapeMeasurements);
+                        case "square":
+                            return new Square(shapeMeasurements);
+                        case "scalene triangle":
+                            return new ScaleneTriangle(shapeMeasurements);
+                        case "parallelogram":
+                            return new Parallelogram(shapeMeasurements);
+                        case "rectangle":
+                            return new Rectangle(shapeMeasurements);
+                        case "oval":
+                            return new Oval(shapeMeasurements);
+                        //case "cube":
+                       //     return new Cube(shapeMeasurements);
+                        default:
+                            if (RegularPolygon.SupportedRegularPolygons.ContainsKey(shapeType))
+                                return new RegularPolygon(RegularPolygon.SupportedRegularPolygons[shapeType], shapeMeasurements);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(String.Format("Unable to get shape given the shape measurements. Error: {0}", ex.Message));
                 }
 
-                throw new Exception("Unsupported shape type");
+                throw new NotSupportedException("Unsupported shape type.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse(ex.Message));
+                return StatusCode(500, new ErrorResponse(String.Format("Invalid input string. Error: {0}", ex.Message)));
             }
         }
     }
