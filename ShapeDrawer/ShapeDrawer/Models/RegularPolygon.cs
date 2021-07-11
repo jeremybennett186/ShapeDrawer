@@ -53,9 +53,9 @@ namespace ShapeDrawer.Models
             var minX = coordinates.Min(c => c.X);
             var minY = coordinates.Min(c => c.Y);
             if (minX > 0)
-                coordinates = coordinates.Select(c => { c.X = c.X - minX; return c; }).ToList();
+                coordinates = coordinates.Select(c => { c.X -= minX; return c; }).ToList();
             if (minY > 0)
-                coordinates = coordinates.Select(c => { c.Y = c.Y - minY; return c; }).ToList();
+                coordinates = coordinates.Select(c => { c.Y -= minY; return c; }).ToList();
             return coordinates;
         }
     }
