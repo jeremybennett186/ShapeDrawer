@@ -28,3 +28,5 @@ Enter a draw command into the text box and click the 'Draw' button.
 * Draw a decagon with a side length of 100
 * Draw a hendecagon with a side length of 100
 * Draw a dodecagon with a side length of 100
+* Draw a cube with a side length of 250
+* Draw a prism with a length of 200, height of 250 and a width of 150
