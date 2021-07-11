@@ -22,15 +22,7 @@ namespace ShapeDrawer.Models
                 ));
 
             // reorganise triangle so longest side is on the bottom
-            double baseSide;
-            double leftSide;
-            double rightSide;
-
-            double leftAngle;
-            double rightAngle;
-            double topAngle;
-            double topVertexXCoordinate;
-            double height;
+            double baseSide, leftSide, rightSide, leftAngle, rightAngle, topAngle, topVertexXCoordinate, height;
 
             if (firstSideLength > secondSideLength && firstSideLength > thirdSideLength)
             {
